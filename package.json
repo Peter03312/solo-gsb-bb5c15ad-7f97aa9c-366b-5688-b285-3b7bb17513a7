@@ -1,0 +1,21 @@
+{
+  "name": "accessible-park",
+  "version": "1.0.0",
+  "private": true,
+  "description": "园区无障碍通行 Web 应用（Node.js + React + SQLite）",
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "install:all": "npm install",
+    "dev:server": "npm --workspace server run dev",
+    "dev:client": "npm --workspace client run dev",
+    "build": "npm --workspace client run build",
+    "start": "npm --workspace server start",
+    "test:e2e": "node test/e2e.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

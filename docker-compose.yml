@@ -1,0 +1,28 @@
+services:
+  web:
+    build: .
+    image: accessible-park:latest
+    container_name: accessible-park
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    environment:
+      # 宿主机端口通过 APP_PORT 修改；容器内固定 3000
+      PORT: 3000
+      DATA_DIR: /data
+      DB_PATH: /data/park.db
+      # 首次启动自动写入示例路网（v1）与一条示例封闭；设为 0 可得到空库
+      SEED_ON_START: "1"
+      # 无等待路线搜索的标签上限（一般无需调整）
+      MAX_LABELS: "50000"
+      TZ: Asia/Shanghai
+    volumes:
+      - park-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  park-data:
