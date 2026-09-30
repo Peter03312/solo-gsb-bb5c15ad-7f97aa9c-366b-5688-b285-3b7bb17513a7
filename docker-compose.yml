@@ -1,0 +1,39 @@
+services:
+  park-access:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: park-access:latest
+    container_name: park-access
+    ports:
+      - "${APP_PORT:-4000}:4000"
+    environment:
+      # 容器内监听端口（容器内部固定 4000，宿主机映射由 APP_PORT 控制）
+      PORT: 4000
+      HOST: 0.0.0.0
+      # SQLite 数据库文件位置（挂载到命名卷持久化）
+      DB_PATH: /data/park.db
+      # 首次启动是否写入演示路网与演示封闭（true/false）
+      SEED_ON_START: "${SEED_ON_START:-true}"
+      # 不等待路线搜索的保护上限
+      ROUTE_MAX_STATES: "${ROUTE_MAX_STATES:-2000000}"
+      ROUTE_MAX_NODES: "${ROUTE_MAX_NODES:-18}"
+      ROUTE_HORIZON_MIN: "${ROUTE_HORIZON_MIN:-43200}"
+    volumes:
+      - park-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:4000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  park-data:
